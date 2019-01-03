@@ -20,7 +20,7 @@ with open('input.txt') as input_file:
 def get_layout(title_num):
     return {
         "title": "Iteration {}".format(title_num),
-        "xaxis": {"title": "x", },
+        "xaxis": {"title": "x"},
         "yaxis": {"title": "y"}
     }
 
