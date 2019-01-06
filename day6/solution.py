@@ -29,6 +29,7 @@ with open('input.txt') as open_file:
         points.append((x, y))
 
 # Create empty bounded graph
+print('graph is {} by {}'.format(max_x + 1, max_y + 1))
 graph = [['-' for x in xrange(max_x + 1)] for y in xrange(max_y + 1)]
 
 # Set points on graph
@@ -124,3 +125,90 @@ for y, row in enumerate(graph):
 
 non_infinite_max = max([counter[letter] for letter in counter if letter not in infinite])
 print('Part One: {}'.format(non_infinite_max))
+
+
+# Not fast, not dry
+def find_closest_manhattan_region(x, y):
+    going_right = [(x + 1, y)]
+    going_left = [(x - 1, y)]
+    going_up = [(x, y + 1)]
+    going_down = [(x, y - 1)]
+    found_numbers = []
+    distance = 1
+    total_distance = 0
+
+    initial_pt = graph[y][x]
+    if initial_pt != '-':
+        found_numbers.append(initial_pt)
+        total_distance += distance
+
+    while True:
+        if going_right:
+            next_rights = []
+            for pt in going_right:
+                x_pos, y_pos = pt
+                if x_pos <= max_x:
+                    pt_value = graph[y_pos][x_pos]
+                    if pt_value != '-':
+                        found_numbers.append(pt_value)
+                        total_distance += distance
+                    next_rights.append((x_pos + 1, y_pos))
+            going_right = next_rights
+        if going_left:
+            next_lefts = []
+            for pt in going_left:
+                x_pos, y_pos = pt
+                if x_pos >= 0:
+                    pt_value = graph[y_pos][x_pos]
+                    if pt_value != '-':
+                        found_numbers.append(pt_value)
+                        total_distance += distance
+                    next_lefts.append((x_pos - 1, y_pos))
+            going_left = next_lefts
+        if going_up:
+            next_ups = []
+            for pt in going_up:
+                x_pos, y_pos = pt
+                if y_pos <= max_y:
+                    pt_value = graph[y_pos][x_pos]
+                    if pt_value != '-':
+                        found_numbers.append(pt_value)
+                        total_distance += distance
+                    next_ups.append((x_pos, y_pos + 1))
+                    going_right.append((x_pos + 1, y_pos))
+                    going_left.append((x_pos - 1, y_pos))
+            going_up = next_ups
+        if going_down:
+            next_downs = []
+            for pt in going_down:
+                x_pos, y_pos = pt
+                if y_pos >= 0:
+                    pt_value = graph[y_pos][x_pos]
+                    if pt_value != '-':
+                        found_numbers.append(pt_value)
+                        total_distance += distance
+                    next_downs.append((x_pos, y_pos - 1))
+                    going_right.append((x_pos + 1, y_pos))
+                    going_left.append((x_pos - 1, y_pos))
+            going_down = next_downs
+
+        if total_distance >= 10000:
+            return False
+
+        if len(found_numbers) == len(points):
+            break
+
+        distance += 1
+
+    return True
+
+region_size = 0
+for y, row in enumerate(graph):
+    for x, pt in enumerate(row):
+        inside_region = find_closest_manhattan_region(x, y)
+        if inside_region:
+            region_size += 1
+
+    print('finished row {} region size {}'.format(y, region_size))
+
+print('Part Two: {}'.format(region_size))
